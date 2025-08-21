@@ -23,7 +23,7 @@
   <div class="container">
     <div class="section">
       <h2>Enter Your Text</h2>
-      <textarea id="text-input" rows="3" placeholder="Enter your text here... (URLs, messages, contact info, etc.)"></textarea>
+      <textarea id="text-input" rows="3" placeholder="Enter your text here... (URLs, messages, contact info, etc.)" oninput="generateQR()"></textarea>
       <div style="margin-top:10px;">
         <button class="btn" onclick="setSampleURL()">Sample URL</button>
         <button class="btn" onclick="setWifiInfo()">WiFi Info</button>
@@ -53,7 +53,7 @@
 
           <div>
             <p>Error Correction</p>
-            <select id="error-level" onchange="updateQR()">
+            <select id="error-level" onchange="generateQR()">
               <option value="L">Low (~7%)</option>
               <option value="M" selected>Medium (~15%)</option>
               <option value="Q">Quartile (~25%)</option>
@@ -64,8 +64,8 @@
           <div>
             <p>Colors</p>
             <div class="flex">
-              <input type="color" id="fg-color" value="#000000" onchange="updateQR()">
-              <input type="color" id="bg-color" value="#ffffff" onchange="updateQR()" style="margin-left:10px;">
+              <input type="color" id="fg-color" value="#000000" onchange="generateQR()">
+              <input type="color" id="bg-color" value="#ffffff" onchange="generateQR()" style="margin-left:10px;">
             </div>
           </div>
         </div>
@@ -92,8 +92,6 @@
         correctLevel: QRCode.CorrectLevel[level]
       });
     }
-
-    function updateQR() { generateQR(); }
 
     function setSize(newSize) { size = newSize; generateQR(); }
 
