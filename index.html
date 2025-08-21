@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9fafb; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 900px; width: 100%; }
+    textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+    .section { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .btn { padding: 8px 14px; border: none; border-radius: 8px; cursor: pointer; background: #3b82f6; color: white; font-weight: bold; }
+    .btn-outline { background: white; color: #3b82f6; border: 1px solid #3b82f6; }
+    .btn + .btn { margin-left: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .flex { display: flex; align-items: center; }
+    .flex-col { display: flex; flex-direction: column; gap: 10px; }
+    select, input[type=color] { padding: 6px; border-radius: 6px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="section">
+      <h2>Enter Your Text</h2>
+      <textarea id="text-input" rows="3" placeholder="Enter your text here... (URLs, messages, contact info, etc.)"></textarea>
+      <div style="margin-top:10px;">
+        <button class="btn" onclick="setSampleURL()">Sample URL</button>
+        <button class="btn" onclick="setWifiInfo()">WiFi Info</button>
+        <button class="btn" onclick="pasteClipboard()">Paste</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="section" style="text-align:center;">
+        <h3>Your QR Code</h3>
+        <div id="qrcode"></div>
+        <div style="margin-top:15px;">
+          <button class="btn" onclick="downloadQR('png')">Download PNG</button>
+          <button class="btn" onclick="downloadQR('svg')">Download SVG</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Customize</h3>
+        <div class="flex-col">
+          <div>
+            <p>Size</p>
+            <button class="btn-outline" onclick="setSize(256)">Small</button>
+            <button class="btn-outline" onclick="setSize(512)">Medium</button>
+            <button class="btn-outline" onclick="setSize(1024)">Large</button>
+          </div>
+
+          <div>
+            <p>Error Correction</p>
+            <select id="error-level" onchange="updateQR()">
+              <option value="L">Low (~7%)</option>
+              <option value="M" selected>Medium (~15%)</option>
+              <option value="Q">Quartile (~25%)</option>
+              <option value="H">High (~30%)</option>
+            </select>
+          </div>
+
+          <div>
+            <p>Colors</p>
+            <div class="flex">
+              <input type="color" id="fg-color" value="#000000" onchange="updateQR()">
+              <input type="color" id="bg-color" value="#ffffff" onchange="updateQR()" style="margin-left:10px;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let qr;
+    let size = 512;
+
+    function generateQR() {
+      const text = document.getElementById("text-input").value;
+      const fg = document.getElementById("fg-color").value;
+      const bg = document.getElementById("bg-color").value;
+      const level = document.getElementById("error-level").value;
+      document.getElementById("qrcode").innerHTML = "";
+      qr = new QRCode(document.getElementById("qrcode"), {
+        text: text || "Enter text above to generate your QR code",
+        width: size,
+        height: size,
+        colorDark: fg,
+        colorLight: bg,
+        correctLevel: QRCode.CorrectLevel[level]
+      });
+    }
+
+    function updateQR() { generateQR(); }
+
+    function setSize(newSize) { size = newSize; generateQR(); }
+
+    function setSampleURL() { document.getElementById("text-input").value = "https://example.com"; generateQR(); }
+    function setWifiInfo() { document.getElementById("text-input").value = "WIFI:S:MyWifi;T:WPA;P:mypassword;;"; generateQR(); }
+    async function pasteClipboard() { document.getElementById("text-input").value = await navigator.clipboard.readText(); generateQR(); }
+
+    function downloadQR(format) {
+      const canvas = document.querySelector("#qrcode canvas");
+      if (!canvas) return;
+      const link = document.createElement("a");
+      link.download = `qr-code.${format}`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+
+    generateQR();
+  </script>
+</body>
+</html>
